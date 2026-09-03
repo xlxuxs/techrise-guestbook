@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Create a .env for the test run
+        run: |
+          echo "REDIS_HOST=redis" > .env
+          echo "REDIS_PORT=6379" >> .env
+          echo "APP_PORT=8080" >> .env
+
+      - name: Start the stack
+        run: docker compose up -d --build
+
+      - name: Wait for the application to report healthy
+        run: |
+          for i in $(seq 120); do
+            if curl -fs http://localhost:8080/health; then
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Application never became healthy"
+          docker compose logs
+          exit 1
+
+      - name: Sign the guestbook and check it appears
+        run: |
+          curl -fs -X POST -d "name=ci" -d "message=hello" http://localhost:8080/sign
+          curl -fs http://localhost:8080 | grep -q "ci:hello"
+
+      - name: Show the logs
+        if: always()
+        run: docker compose logs
+
+      - name: Tear it all down
+        if: always()
+        run: docker compose down -v
