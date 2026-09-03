@@ -11,7 +11,7 @@ A simple guestbook web application where visitors can sign their name and leave 
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR-USERNAME/techrise-guestbook.git
+git clone https://github.com/xlxuxs/techrise-guestbook.git
 cd techrise-guestbook
 
 # Copy environment variables
