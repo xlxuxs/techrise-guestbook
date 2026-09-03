@@ -31,7 +31,7 @@ def home():
 
 @app.route("/sign", methods=["POST"])
 def sign():
-    entry = request.form["name"] + ": " + request.form["message"]
+    entry = request.form["name"] + ":" + request.form["message"]
     cache.lpush("guestbook", entry)
     return redirect("/")
 
